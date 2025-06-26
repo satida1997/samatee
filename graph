@@ -61,12 +61,18 @@
   let financeChart;
   let sampleData = [];
 
+  // เปลี่ยน URL นี้เป็น URL Web App ของคุณ (Google Apps Script)
   const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbyRs3UH0y4RfDX-lC4FwAhs1CHjTOL8xs1gI9lCACzTVO61he_sDQ-Y1U5py66SD2J02w/exec';
 
   async function fetchSheetData() {
     try {
       const res = await fetch(SHEET_API_URL);
+      if (!res.ok) {
+        alert('ไม่สามารถโหลดข้อมูลได้: ' + res.status);
+        return;
+      }
       const json = await res.json();
+      // console.log('ข้อมูลจาก API:', json);
       sampleData = json.map(item => ({
         date: item.date,
         income: parseFloat(item.income) || 0,
@@ -75,7 +81,8 @@
       renderChart();
       renderTransactionTable();
     } catch (err) {
-      console.error('โหลดข้อมูลล้มเหลว:', err);
+      alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+      console.error(err);
     }
   }
 
@@ -175,6 +182,7 @@
     });
   }
 
+  // ปุ่มสลับช่วงเวลาแสดงข้อมูล
   document.getElementById('btn-day').addEventListener('click', () => {
     timeScale = 'day';
     setActiveButton('btn-day');
@@ -191,6 +199,7 @@
     renderChart();
   });
 
+  // ปุ่มสลับกราฟแท่งและวงกลม
   document.getElementById('btn-toggle-chart').addEventListener('click', () => {
     chartType = (chartType === 'bar') ? 'pie' : 'bar';
     document.getElementById('btn-toggle-chart').textContent = chartType === 'bar' ? 'เปลี่ยนกราฟเป็นวงกลม' : 'เปลี่ยนกราฟเป็นแท่ง';
@@ -204,7 +213,9 @@
     document.getElementById(id).classList.add('btn-active');
   }
 
+  // โหลดข้อมูลตอนเปิดหน้าเว็บ
   fetchSheetData();
 </script>
+
 </body>
 </html>
